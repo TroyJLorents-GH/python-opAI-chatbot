@@ -1,7 +1,4 @@
 import { useState, useEffect, useRef } from "react";
-import { Input } from '../components/ui/input';
-import { Button } from '../components/ui/button';
-import { Card, CardContent } from '../components/ui/card';
 import { Paperclip } from "lucide-react";
 
 export default function ChatPage() {
@@ -33,43 +30,66 @@ export default function ChatPage() {
       const data = await res.json();
       setMessages((prev) => [...prev, { role: "bot", content: data.response }]);
     } catch (err) {
-      console.error("Failed to fetch response:", err);
+      setMessages((prev) => [
+        ...prev,
+        { role: "bot", content: "Sorry, there was an error." },
+      ]);
     }
   };
 
   return (
-    <div className="flex flex-col h-screen max-w-3xl mx-auto p-4">
-      <div className="flex-1 overflow-y-auto space-y-4">
+    <div className="flex flex-col h-screen w-full items-center bg-gray-100">
+      <div className="flex-1 w-full max-w-2xl px-2 py-6 overflow-y-auto">
         {messages.map((msg, idx) => (
-          <Card key={idx} className={msg.role === "user" ? "bg-blue-50" : "bg-gray-50"}>
-            <CardContent className="p-3">
-              <p><strong>{msg.role === "user" ? "You" : "Bot"}:</strong> {msg.content}</p>
-            </CardContent>
-          </Card>
+          <div
+            key={idx}
+            className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"} mb-2`}
+          >
+            <div
+              className={`rounded-lg px-4 py-2 shadow-sm max-w-xs ${
+                msg.role === "user"
+                  ? "bg-blue-500 text-white"
+                  : "bg-white text-gray-900 border"
+              }`}
+            >
+              <span className="font-semibold">{msg.role === "user" ? "You" : "Bot"}:</span>{" "}
+              {msg.content}
+            </div>
+          </div>
         ))}
         <div ref={messagesEndRef} />
       </div>
-
-      <div className="mt-4 flex items-center gap-2">
-        <div className="relative w-full">
-          <Input
+      <div className="w-full max-w-2xl px-2 pb-6">
+        <form
+          className="flex gap-2 items-center bg-white rounded-xl shadow px-4 py-2"
+          onSubmit={e => {
+            e.preventDefault();
+            sendMessage();
+          }}
+        >
+          <input
             value={input}
-            onChange={(e) => setInput(e.target.value)}
+            onChange={e => setInput(e.target.value)}
             placeholder="Ask something or reference your uploaded document..."
-            className="pr-10"
-            onKeyDown={(e) => e.key === "Enter" && sendMessage()}
+            className="flex-1 px-3 py-2 rounded-lg border outline-none"
+            onKeyDown={e => e.key === "Enter" && !e.shiftKey && sendMessage()}
           />
-          <label className="absolute inset-y-0 right-3 flex items-center cursor-pointer">
+          <label className="cursor-pointer flex items-center">
             <Paperclip className="h-5 w-5 text-gray-400" />
             <input
               type="file"
               accept=".pdf,.docx,.csv,.xlsx"
-              onChange={(e) => setFile(e.target.files[0])}
+              onChange={e => setFile(e.target.files[0])}
               className="hidden"
             />
           </label>
-        </div>
-        <Button onClick={sendMessage}>Send</Button>
+          <button
+            type="submit"
+            className="bg-blue-600 hover:bg-blue-700 text-white rounded-lg px-4 py-2 font-semibold"
+          >
+            Send
+          </button>
+        </form>
       </div>
     </div>
   );
