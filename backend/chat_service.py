@@ -17,3 +17,4 @@ def handle_chat(prompt):
     keywords = extract_keywords(prompt)
     log_chat(prompt, response, keywords, categories)
     return response
+
